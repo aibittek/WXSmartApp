@@ -1,0 +1,92 @@
+/**index.wxss**/
+
+page {
+  background-color: #448AFF;
+}
+
+.backdrop-DIV{
+  height: 800rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color: rgb(240, 240, 240); */
+}
+
+.backdrop-DIV .displayIMG{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.Operation-DIV{
+  height: 300rpx;
+
+  position: fixed;
+  left: 30rpx;
+  right: 30rpx;
+
+  z-index: 99;
+}
+
+.Operation-DIV .selectIMG{
+  display: grid;
+  grid-template-columns: calc(100% - 50% - 10rpx) calc(100% - 50% - 10rpx);
+  grid-column-gap: 20rpx;
+}
+
+.Operation-DIV .photo{
+  height: 140rpx;
+  background-color: #FFF;
+  display: flex;
+
+  align-items: center;
+
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px #00000018;
+}
+.Operation-DIV .camera{
+  height: 140rpx;
+  background-color: #FFF;
+  display: flex;
+
+  align-items: center;
+
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px #00000018;
+
+}
+
+.Operation-DIV .t2{
+  font-size: 12px;
+}
+
+.Operation-DIV .iconfont{
+  color: #333;
+  margin: 0 20rpx 0 40rpx;
+  width: 60rpx;
+  font-size: 48rpx;
+}
+
+.Operation-DIV .t1 {
+  font-weight: bold;
+  font-size: 30rpx;
+
+  color: #333;
+}
+.Operation-DIV .t2 {
+  font-size: 28rpx;
+
+  color: #999999;
+}
+
+.bccDIV{
+  background-color: rgb(240, 240, 240);
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 90;
+}
