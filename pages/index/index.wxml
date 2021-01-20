@@ -1,0 +1,33 @@
+<!--index.wxml-->
+
+<view class="backdrop-DIV" style="height:{{(height - 340 - 45) * 2}}rpx">
+	<view class="displayIMG">
+		<image src="{{imageUrl}}" mode="aspectFit"></image> 
+		<!-- <image src="{{imageUrl}}" mode="scaleToFill"></image>  -->
+  </view>
+</view>
+
+<view class="Operation-DIV" style="bottom:{{(proportion) ? 20 : 50}}rpx">
+	<view class="selectIMG">
+		<view class="photo" bindtap="photo">
+			<view class="iconfont icon-photo"></view>
+			<view class="cst">
+				<view class="t1">相册</view>
+				<view class="t2">从相册选择</view>
+			</view>
+		</view>
+
+		<view class="camera" bindtap="camera">
+			<view class="iconfont icon-camera"></view>
+			<view class="cst">
+				<view class="t1">相机</view>
+				<view class="t2">拍照扫描</view>
+			</view>
+		</view>
+	</view>
+
+</view>
+
+<view class="bccDIV" style="height:280rpx"></view>
+
+<canvas class="canv" canvas-id='customCanvas'></canvas>

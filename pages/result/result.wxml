@@ -1,0 +1,14 @@
+<!--pages/result/result.wxml-->
+<canvas canvas-id="myCanvas" style="{{canvasStyle}}"></canvas>
+
+<view class='whiteContent'>
+  <image src='{{tempSavedImageURL}}' mode='aspectFit' style='height:100%;width:100%'></image>
+</view>
+
+<view class='bottom'>
+  <view style='width:100%;height:2rpx;background-color:#aaaaaa'></view>
+  <view class='saveBtn_ugly' bindtap='savBtnClick'>
+    <image class='icon' src='/img/personalCenter/iv_icon_download.png'></image>
+    <text>保存至手机</text>
+  </view>
+</view>
