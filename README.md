@@ -1,0 +1,2 @@
+# WXSmartApp
+wechat smart applications
