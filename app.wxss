@@ -17,7 +17,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-
 .icon-ocr:before {
   content: "\e61d";
 }

@@ -1,1 +1,13 @@
 /* pages/result/result.wxss */
+
+.canv{
+  position: fixed;
+  top: 0;
+}
+.share {
+  position: absolute;
+  /* width: 40%; */
+  position: absolute;
+  bottom: 100rpx;
+  left: 35%;
+}

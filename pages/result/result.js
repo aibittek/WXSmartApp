@@ -1,33 +1,105 @@
 // pages/result/result.js
+
+// 获取应用实例
+const app = getApp()
+
 Page({
 
-  /**
-   * 页面的初始数据
-   */
   data: {
-    bgImageUrl: 'https://cdn.jsdelivr.net/gh/aibittek/ImageHost/img/1.jpg',    //海报背景图片，固定地址的网络图片
-    qrCodeUrl: "",
-
-    imagePath_bg: undefined,       //wx.getImageInfo转化的图片地址；cavas不能直接用网络地址。
-    imagePath_qrcode: undefined,    ////wx.getImageInfo转化的图片地址 ;网络动态请求，小程序码网络图片
-
-    tempSavedImageURL: '',  //cavas绘制图片临时保存路径
-
-    //注意，背景图片时固定大小600x1067，所以canvasStyle宽高比例必须也一致！否则画出来的图片会有多余的一片空白。
-    canvasStyle: 'width: 600px;height:1067px;position: fixed;top: -10000px;',
+    width: app.globalData.width,
+    height: app.globalData.height,
+    shareUrl: null
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.ctx = wx.createCanvasContext('myCanvas', this);
-    //创建ctx耗时较长，延时500毫秒再请求url
-        setTimeout(res => {
-          this.requestMyIQRCodeUrl()
-        }, 500)
-  },
+    let than = this
+    let promise1 = new Promise(function (resolve, reject) {
+      wx.getImageInfo({
+        src: options.image,
+        success: function (res) {
+          console.log(res)
+          resolve(res);
+        }
+      })
+    });
+    let promise2 = new Promise(function (resolve, reject) {
+      wx.getImageInfo({
+        src: '../../images/qrcode.jpg',
+        success: function (res) {
+          console.log(res)
+          resolve(res);
+        }
+      })
+    });
+    Promise.all([
+      promise1, promise2
+    ]).then(res => {
+      var that = this
+      console.log(res)
+      const ctx = wx.createCanvasContext('shareImg')
+      that.setData({
+        width: app.globalData.width,
+        height: app.globalData.height,
+      })
+      //主要就是计算好各个图文的位置
+      ctx.drawImage(res[0].path, 0, 0, res[0].witdh, res[0].height,
+        0, 0, app.globalData.width, app.globalData.height)
+      ctx.drawImage('../../' + res[1].path, app.globalData.width-res[1].witdh, app.globalData.height-res[1].height, res[1].witdh, res[1].height)
 
+      ctx.setTextAlign('center')
+      ctx.setFillStyle('#ffffff')
+      ctx.setFontSize(20)
+      ctx.fillText('保存照片发到朋友圈吧', 120, 50)
+
+      ctx.stroke()
+      ctx.draw(false, () => {
+        wx.canvasToTempFilePath({
+          x: 0,
+          y: 0,
+          width: res.width,
+          height: res.height,
+          destWidth: res.width,
+          destHeight: res.height,
+          canvasId: 'shareImg',
+          success: function (res) {
+            console.log(res.tempFilePath);
+            that.setData({
+              shareUrl: res.tempFilePath,
+            })
+          },
+          fail: function (err) {
+            console.log(err)
+          }
+        })
+      })
+    })
+  },
+  /**
+   * 保存到相册
+  */
+  save: function () {
+    var that = this
+    //生产环境时 记得这里要加入获取相册授权的代码
+    wx.saveImageToPhotosAlbum({
+      filePath: that.data.shareUrl,
+      success(res) {
+        wx.showModal({
+          content: '图片已保存到相册，去晒一下吧~',
+          showCancel: false,
+          confirmText: '好哒',
+          confirmColor: '#72B9C3',
+          success: function (res) {
+            if (res.confirm) {
+              console.log('用户点击确定');
+            }
+          }
+        })
+      }
+    })
+  },
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -76,5 +148,5 @@ Page({
   onShareAppMessage: function () {
 
   },
-  
+
 })
