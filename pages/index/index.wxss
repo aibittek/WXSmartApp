@@ -90,3 +90,11 @@ page {
 
   z-index: 90;
 }
+
+.canv {
+  position: fixed;
+  top: 200%;
+  /* transform: translateX(-200%); */
+  width: 500px;
+  height: 500px;
+}

@@ -30,4 +30,4 @@
 
 <view class="bccDIV" style="height:280rpx"></view>
 
-<canvas class="canv" canvas-id='customCanvas'></canvas>
+<canvas class='canv' canvas-id='customCanvas' style='width:{{canvasWidth}}px; height:{{canvasHeight}}px'  disable-scroll='true'></canvas>
