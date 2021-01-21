@@ -11,7 +11,7 @@ Page({
     imageUrl: "/images/shareit.png",
     uri: "/v2/itr",
     host: "rest-api.xfyun.cn",
-    hostUrl: "http://rest-api.xfyun.cn/v2/itr",
+    hostUrl: "https://rest-api.xfyun.cn/v2/itr",
     appid: "60016549",
     apiSecret: "4f49ab1f8b4c430f3536e54d111eb705",
     apiKey: "69988d3cd6417055f6575c6e81eb2b5e",
@@ -112,8 +112,12 @@ Page({
       wx.getFileSystemManager().readFile({
         filePath: photo,
         encoding: 'base64',
-        success: res => resolve(res.data),
-        fail: err => reject(err)
+        success(res) {
+          resolve(res.data)
+        },
+        fail(res) {
+          reject(err)
+        }
       })
     }).then((base64) => {//判断接口,开始上传扫描
       return new Promise((resolve, reject) => {
@@ -222,6 +226,7 @@ Page({
       let signature = CryptoJS.enc.Base64.stringify(signatureSha)
       let authorizationOrigin = `api_key="${this.data.apiKey}", algorithm="hmac-sha256", headers="host date request-line digest", signature="${signature}"`
       console.log("authorizationOrigin:" + authorizationOrigin)
+
       wx.request({
         url: than.data.hostUrl,
         method: 'POST',
@@ -234,15 +239,15 @@ Page({
           "Accept": "application/json,version=1.0"
         },
         success(res) {
-          // console.log(res.data.data.ITRResult.multi_line_info.imp_line_info)
+          let obj = res.data.data.ITRResult.multi_line_info.imp_line_info
           var jsonArray = res.data.data.ITRResult.recog_result[0].line_word_result
           for (var i = 0; i < jsonArray.length; i++) {
             console.log(jsonArray[i].word_content.toString())
           }
-          var jsonResult = JSON.stringify(res.data.data.ITRResult.multi_line_info.imp_line_info)
-          console.log(jsonResult)
-          var obj = JSON.parse(jsonResult)
-          console.log(obj)
+          // var jsonResult = JSON.stringify(res.data.data.ITRResult.multi_line_info.imp_line_info)
+          // console.log(jsonResult)
+          // var obj = JSON.parse(jsonResult)
+          // console.log(obj)
           let ctx = wx.createCanvasContext('customCanvas')
           wx.getImageInfo({//获取图片信息
             src: than.imagePath,
@@ -252,7 +257,7 @@ Page({
                 canvasHeight: res.height
               })
               ctx.drawImage(than.imagePath, 0, 0, res.width, res.height)
-              for (var i = 0; i < obj.length; i++) {
+              for (let i = 0; i < obj.length; i++) {
                 if (0 == obj[i].total_score) {
                   ctx.setStrokeStyle('red')
                 } else {
@@ -260,27 +265,34 @@ Page({
                 }
                 ctx.strokeRect(obj[i].imp_line_rect.left_up_point_x,
                   obj[i].imp_line_rect.left_up_point_y,
-                  obj[i].imp_line_rect.right_down_point_x-obj[i].imp_line_rect.left_up_point_x,
-                  obj[i].imp_line_rect.right_down_point_y-obj[i].imp_line_rect.left_up_point_y)
-                ctx.draw(true, () => {
-                    wx.canvasToTempFilePath({
-                      x: 0,
-                      y: 0,
-                      width: res.width,
-                      height: res.height,
-                      destWidth: res.width,
-                      destHeight: res.height,
-                      fileType: 'jpg',
-                      canvasId: 'customCanvas',
-                      success(res) {
-                        console.log(res.tempFilePath)
-                        than.setData({
-                          imageUrl: res.tempFilePath
-                        })
-                      }
-                    })
-                })
+                  obj[i].imp_line_rect.right_down_point_x - obj[i].imp_line_rect.left_up_point_x,
+                  obj[i].imp_line_rect.right_down_point_y - obj[i].imp_line_rect.left_up_point_y)
               }
+                  ctx.draw(false, () => {
+                    setTimeout(() => {
+                      wx.canvasToTempFilePath({
+                        x: 0,
+                        y: 0,
+                        width: res.width,
+                        height: res.height,
+                        destWidth: res.width,
+                        destHeight: res.height,
+                        fileType: 'jpg',
+                        canvasId: 'customCanvas',
+                        success(res) {
+                          console.log(res.tempFilePath)
+                          than.setData({
+                            imageUrl: res.tempFilePath
+                          })
+                        },
+                        fail(err) {
+                          console.log("res.width:" + res.width);
+                          console.log("res.height:" + res.height);
+                          console.log("图片绘制失败:" + err);
+                        }
+                      })
+                    }, 500);
+                  })
             },
             fail: err => {
               console.log("获取图片信息失败");
@@ -288,6 +300,9 @@ Page({
             }
           })
           // than.getResult(than.imagePath, jsonResult)
+        },
+        fail(err) {
+          console.log(err.errMsg);
         }
       })
     });
