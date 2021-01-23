@@ -1,13 +1,19 @@
 /* pages/result/result.wxss */
-
+.result{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20rpx;
+  margin-left: 20rpx;
+  margin-right: 20rpx;
+  border-radius: 10rpx;
+  border: 1px solid green;
+}
 .canv{
   position: fixed;
-  top: 0;
+  top: 200%;
 }
 .share {
-  position: absolute;
-  /* width: 40%; */
-  position: absolute;
-  bottom: 100rpx;
-  left: 35%;
+  margin-top: 20rpx;
 }

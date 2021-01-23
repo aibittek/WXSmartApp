@@ -1,5 +1,7 @@
 <!--pages/result/result.wxml-->
 
 <canvas class='canv' canvas-id='shareImg' style='width:{{width}}px; height:{{height}}px' mode='aspectFit'></canvas>
-
-<button class='share' type='primary' size='mini' bindtap='save'>保存分享图</button>
+<view class="result">
+  <image src="{{shareUrl}}" mode="aspectFit" style="height: 1000rpx; width: 700rpx;"></image> 
+</view>
+<button class='share' type='primary' bindtap='save'>保存分享图</button>

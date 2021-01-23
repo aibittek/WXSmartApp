@@ -1,9 +1,8 @@
 <!--index.wxml-->
 
-<view class="backdrop-DIV" style="height:{{(height - 340 - 45) * 2}}rpx">
+<view class="backdrop-DIV" style="height: 1000rpx">
 	<view class="displayIMG">
 		<image src="{{imageUrl}}" mode="aspectFit"></image> 
-		<!-- <image src="{{imageUrl}}" mode="scaleToFill"></image>  -->
   </view>
 </view>
 

@@ -52,7 +52,7 @@ Page({
       ctx.setTextAlign('center')
       ctx.setFillStyle('#ffffff')
       ctx.setFontSize(20)
-      ctx.fillText('保存照片发到朋友圈吧', 120, 50)
+      ctx.fillText('扫描下方二维码体验题拍拍吧', 150, 50)
 
       ctx.stroke()
       ctx.draw(false, () => {

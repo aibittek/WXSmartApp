@@ -73,7 +73,7 @@ Page({
         success(res) {
           resolve(res.data)
         },
-        fail(res) {
+        fail(err) {
           reject(err)
         }
       })
@@ -117,7 +117,9 @@ Page({
       let signature = CryptoJS.enc.Base64.stringify(signatureSha)
       let authorizationOrigin = `api_key="${this.data.apiKey}", algorithm="hmac-sha256", headers="host date request-line digest", signature="${signature}"`
       console.log("authorizationOrigin:" + authorizationOrigin)
-
+      wx.showLoading({
+        title: '请求中...',
+      })
       wx.request({
         url: than.data.hostUrl,
         method: 'POST',
@@ -130,71 +132,113 @@ Page({
           "Accept": "application/json,version=1.0"
         },
         success(res) {
-          let obj = res.data.data.ITRResult.multi_line_info.imp_line_info
-          var jsonArray = res.data.data.ITRResult.recog_result[0].line_word_result
-          for (var i = 0; i < jsonArray.length; i++) {
-            console.log(jsonArray[i].word_content.toString())
-          }
-          // var jsonResult = JSON.stringify(res.data.data.ITRResult.multi_line_info.imp_line_info)
-          // console.log(jsonResult)
-          // var obj = JSON.parse(jsonResult)
-          // console.log(obj)
-          let ctx = wx.createCanvasContext('customCanvas')
-          wx.getImageInfo({//获取图片信息
-            src: than.imagePath,
-            success(res) {
-              than.setData({
-                canvasWidth: res.width,
-                canvasHeight: res.height
-              })
-              ctx.drawImage(than.imagePath, 0, 0, res.width, res.height)
-              for (let i = 0; i < obj.length; i++) {
-                if (0 == obj[i].total_score) {
-                  ctx.setStrokeStyle('red')
-                } else {
-                  ctx.setStrokeStyle('green')
-                }
-                ctx.strokeRect(obj[i].imp_line_rect.left_up_point_x,
-                  obj[i].imp_line_rect.left_up_point_y,
-                  obj[i].imp_line_rect.right_down_point_x - obj[i].imp_line_rect.left_up_point_x,
-                  obj[i].imp_line_rect.right_down_point_y - obj[i].imp_line_rect.left_up_point_y)
-              }
-              ctx.draw(false, () => {
-                setTimeout(() => {
-                  wx.canvasToTempFilePath({
-                    x: 0,
-                    y: 0,
-                    width: res.width,
-                    height: res.height,
-                    destWidth: res.width,
-                    destHeight: res.height,
-                    fileType: 'jpg',
-                    canvasId: 'customCanvas',
-                    success(res) {
-                      console.log(res.tempFilePath)
-                      // than.setData({
-                      //   imageUrl: res.tempFilePath
-                      // })
-                      wx.navigateTo({
-                        url: `/pages/result/result?image=${res.tempFilePath}`,
-                      })
-                    },
-                    fail(err) {
-                      console.log("res.width:" + res.width);
-                      console.log("res.height:" + res.height);
-                      console.log("图片绘制失败:" + err);
+          if (200 != res.statusCode || !res.data || !res.data.data
+            || !res.data.data.ITRResult || !res.data.data.ITRResult.multi_line_info
+            || !res.data.data.ITRResult.multi_line_info.imp_line_info) {
+            wx.hideLoading({
+              success: (res) => {
+                wx.showModal({
+                  content: '失败啦(ㄒoㄒ)~~, 这啥照骗',
+                  showCancel: false,
+                  confirmText: '好的吧',
+                  confirmColor: '#72B9C3',
+                  success: function (res) {
+                    if (res.confirm) {
+                      console.log('用户点击确定');
                     }
-                  })
-                }, 500);
-              })
-            },
-            fail: err => {
-              console.error("获取图片信息失败:" + err);
+                  }
+                })
+              },
+            })
+          } else {
+            let obj = res.data.data.ITRResult.multi_line_info.imp_line_info
+            var jsonArray = res.data.data.ITRResult.recog_result[0].line_word_result
+            for (var i = 0; i < jsonArray.length; i++) {
+              if (obj[i].total_score) {
+                console.log('对:' + jsonArray[i].word_content.toString())
+              } else {
+                console.log('错:' + jsonArray[i].word_content.toString())
+              }
             }
-          })
+            // var jsonResult = JSON.stringify(res.data.data.ITRResult.multi_line_info.imp_line_info)
+            // console.log(jsonResult)
+            // var obj = JSON.parse(jsonResult)
+            // console.log(obj)
+            let ctx = wx.createCanvasContext('customCanvas')
+            wx.getImageInfo({//获取图片信息
+              src: than.imagePath,
+              success(res) {
+                than.setData({
+                  canvasWidth: res.width,
+                  canvasHeight: res.height
+                })
+                ctx.drawImage(than.imagePath, 0, 0, res.width, res.height)
+                for (let i = 0; i < obj.length; i++) {
+                  if (0 == obj[i].total_score) {
+                    ctx.setStrokeStyle('red')
+                  } else {
+                    ctx.setStrokeStyle('green')
+                  }
+                  ctx.strokeRect(obj[i].imp_line_rect.left_up_point_x,
+                    obj[i].imp_line_rect.left_up_point_y,
+                    obj[i].imp_line_rect.right_down_point_x - obj[i].imp_line_rect.left_up_point_x,
+                    obj[i].imp_line_rect.right_down_point_y - obj[i].imp_line_rect.left_up_point_y)
+                }
+                ctx.draw(false, () => {
+                  setTimeout(() => {
+                    wx.canvasToTempFilePath({
+                      x: 0,
+                      y: 0,
+                      width: res.width,
+                      height: res.height,
+                      destWidth: res.width,
+                      destHeight: res.height,
+                      fileType: 'jpg',
+                      canvasId: 'customCanvas',
+                      success(res) {
+                        console.log(res.tempFilePath)
+                        // than.setData({
+                        //   imageUrl: res.tempFilePath
+                        // })
+                        wx.navigateTo({
+                          url: `/pages/result/result?image=${res.tempFilePath}`,
+                        })
+                      },
+                      fail(err) {
+                        console.log("res.width:" + res.width);
+                        console.log("res.height:" + res.height);
+                        console.log("图片绘制失败:" + err);
+                      }
+                    })
+                  }, 500);
+                })
+              },
+              fail: err => {
+                console.error("获取图片信息失败:" + err);
+              }
+            })
+            wx.hideLoading({
+              success: (res) => { },
+            })
+          }
         },
         fail(err) {
           console.log(err.errMsg);
+          wx.hideLoading({
+            success: (res) => {
+              wx.showModal({
+                content: '请求失败啦:( ' + err.errMsg,
+                showCancel: false,
+                confirmText: '好吧',
+                confirmColor: '#72B9C3',
+                success: function (res) {
+                  if (res.confirm) {
+                    console.log('用户点击确定');
+                  }
+                }
+              })
+            },
+          })
         }
       })
     });
