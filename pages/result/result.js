@@ -15,6 +15,9 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    wx.showLoading({
+      title: '生成中...',
+    })
     let than = this
     let promise1 = new Promise(function (resolve, reject) {
       wx.getImageInfo({
@@ -69,9 +72,15 @@ Page({
             that.setData({
               shareUrl: res.tempFilePath,
             })
+            wx.hideLoading({
+              success: (res) => {},
+            })
           },
           fail: function (err) {
             console.log(err)
+            wx.hideLoading({
+              success: (res) => {},
+            })
           }
         })
       })

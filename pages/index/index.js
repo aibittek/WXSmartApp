@@ -200,6 +200,9 @@ Page({
                         // than.setData({
                         //   imageUrl: res.tempFilePath
                         // })
+                        wx.hideLoading({
+                          success: (res) => { },
+                        })
                         wx.navigateTo({
                           url: `/pages/result/result?image=${res.tempFilePath}`,
                         })
@@ -208,6 +211,9 @@ Page({
                         console.log("res.width:" + res.width);
                         console.log("res.height:" + res.height);
                         console.log("图片绘制失败:" + err);
+                        wx.hideLoading({
+                          success: (res) => { },
+                        })
                       }
                     })
                   }, 500);
@@ -215,11 +221,12 @@ Page({
               },
               fail: err => {
                 console.error("获取图片信息失败:" + err);
+                wx.hideLoading({
+                  success: (res) => { },
+                })
               }
             })
-            wx.hideLoading({
-              success: (res) => { },
-            })
+            
           }
         },
         fail(err) {
