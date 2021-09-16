@@ -55,7 +55,7 @@ Page({
       ctx.setTextAlign('center')
       ctx.setFillStyle('#ffffff')
       ctx.setFontSize(20)
-      ctx.fillText('扫描下方二维码体验题拍拍吧', 150, 50)
+      ctx.fillText('扫描下方二维码体验拍拍题吧', 150, 50)
 
       ctx.stroke()
       ctx.draw(false, () => {

@@ -23,7 +23,7 @@
     "compileHotReLoad": false,
     "useMultiFrameRuntime": true,
     "useApiHook": true,
-    "useApiHostProcess": false,
+    "useApiHostProcess": true,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
@@ -42,7 +42,7 @@
   "compileType": "miniprogram",
   "libVersion": "2.8.3",
   "appid": "wx3ed5914a7b6a76aa",
-  "projectname": "题拍拍",
+  "projectname": "%E6%8B%8D%E6%8B%8D%E9%A2%98",
   "debugOptions": {
     "hidedInDevtools": []
   },

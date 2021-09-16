@@ -9,9 +9,9 @@ const CryptoJS = require('../../utils/crypto-js/crypto-js.js')
 Page({
   data: {
     imageUrl: "/images/welcome.png",
-    appid: "60016549",
-    apiSecret: "4f49ab1f8b4c430f3536e54d111eb705",
-    apiKey: "69988d3cd6417055f6575c6e81eb2b5e",
+    appid: "5fc4a723",
+    apiSecret: "16993e14800de73c4f63926803c9f6a4",
+    apiKey: "b6adfb36402ceb31f86c7e3f2e0e6e24",
     uri: "/v2/itr",
     host: "rest-api.xfyun.cn",
     hostUrl: "https://rest-api.xfyun.cn/v2/itr",
@@ -20,10 +20,12 @@ Page({
     imagePath: null,
     canvasWidth: 0,
     canvasHeight: 0,
+    rightRes: null,
+    errorRes: null
   },
 
   onLoad() {
-
+    
   },
 
   //图库选择
@@ -88,9 +90,22 @@ Page({
       });
     })
   },
-  // 拍照速算接口
+  // 拍拍题接口
   itr(base64image) {
     let than = this;
+    wx.getImageInfo({
+      src: '../../images/right.png',
+      success: function (res) {
+        than.rightRes = res;
+      }
+    });
+
+    wx.getImageInfo({
+      src: '../../images/error.png',
+      success: function (res) {
+        than.errorRes = res;
+      }
+    });
     return new Promise((reslove, reject) => {
       var body = {
         "common": {
@@ -108,8 +123,7 @@ Page({
       app.globalData.Date = new Date().toUTCString()
       console.log("Date:" + app.globalData.Date)
       // 获取Digest
-      let base64body = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(body))
-      let digest = 'SHA-256=' + CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(JSON.stringify(base64body)))
+      let digest = 'SHA-256=' + CryptoJS.enc.Base64.stringify(CryptoJS.SHA256(JSON.stringify(body)))
       console.log("Digest:" + digest)
       // 获取Authorization
       let signatureOrigin = `host: ${this.data.host}\ndate: ${app.globalData.Date}\nPOST ${this.data.uri} HTTP/1.1\ndigest: ${digest}`
@@ -174,6 +188,19 @@ Page({
                 })
                 ctx.drawImage(than.imagePath, 0, 0, res.width, res.height)
                 for (let i = 0; i < obj.length; i++) {
+                  if (0 == obj[i].total_score) {
+                    ctx.drawImage("../../" + than.errorRes.path, 
+                      obj[i].imp_line_rect.right_down_point_x, 
+                      obj[i].imp_line_rect.left_up_point_y, 
+                      than.errorRes.width, 
+                      than.errorRes.height);
+                  } else {
+                    ctx.drawImage("../../" + than.rightRes.path, 
+                      obj[i].imp_line_rect.right_down_point_x, 
+                      obj[i].imp_line_rect.left_up_point_y, 
+                      than.errorRes.width, 
+                      than.errorRes.height);
+                  }
                   if (0 == obj[i].total_score) {
                     ctx.setStrokeStyle('red')
                   } else {
@@ -252,7 +279,7 @@ Page({
   },
   onShareAppMessage() {//统一分享内容
     return {
-      title: '题拍拍',
+      title: '拍拍题',
       path: '/pages/index/index',
       imageUrl: '/images/welcome.png'
     }
