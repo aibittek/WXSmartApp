@@ -2,7 +2,7 @@
 
 <view class="backdrop-DIV" style="height: 1000rpx">
 	<view class="displayIMG">
-		<image src="{{imageUrl}}" mode="aspectFit"></image> 
+		<image src="/images/welcome.png" mode="aspectFit"></image> 
   </view>
 </view>
 
@@ -29,4 +29,7 @@
 
 <view class="bccDIV" style="height:280rpx"></view>
 
-<canvas class='canv' canvas-id='customCanvas' style='width:{{canvasWidth}}px; height:{{canvasHeight}}px'  disable-scroll='true'></canvas>
+<view class="canv">
+<canvas type="2d" id='customCanvas' style='width: 100px;height: 100px;'></canvas>
+</view>
+

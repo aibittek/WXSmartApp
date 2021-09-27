@@ -3,159 +3,99 @@
 // 获取应用实例
 const app = getApp()
 
+// 获取通用接口
+const common = require("../../js/common.js")
+
 Page({
 
-  data: {
-    width: app.globalData.width,
-    height: app.globalData.height,
-    shareUrl: null
-  },
+    data: {
+        shareUrl: null
+    },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    wx.showLoading({
-      title: '生成中...',
-    })
-    let than = this
-    let promise1 = new Promise(function (resolve, reject) {
-      wx.getImageInfo({
-        src: options.image,
-        success: function (res) {
-          console.log(res)
-          resolve(res);
-        }
-      })
-    });
-    let promise2 = new Promise(function (resolve, reject) {
-      wx.getImageInfo({
-        src: '../../images/qrcode.jpg',
-        success: function (res) {
-          console.log(res)
-          resolve(res);
-        }
-      })
-    });
-    Promise.all([
-      promise1, promise2
-    ]).then(res => {
-      var that = this
-      console.log(res)
-      const ctx = wx.createCanvasContext('shareImg')
-      that.setData({
-        width: app.globalData.width,
-        height: app.globalData.height,
-      })
-      //主要就是计算好各个图文的位置
-      ctx.drawImage(res[0].path, 0, 0, res[0].witdh, res[0].height,
-        0, 0, app.globalData.width, app.globalData.height)
-      ctx.drawImage('../../' + res[1].path, app.globalData.width-res[1].witdh, app.globalData.height-res[1].height, res[1].witdh, res[1].height)
+    /**
+     * 生命周期函数--监听页面加载
+     */
+    onLoad: function (options) {
+        let self = this
 
-      ctx.setTextAlign('center')
-      ctx.setFillStyle('#ffffff')
-      ctx.setFontSize(20)
-      ctx.fillText('扫描下方二维码体验拍拍题吧', 150, 50)
-
-      ctx.stroke()
-      ctx.draw(false, () => {
-        wx.canvasToTempFilePath({
-          x: 0,
-          y: 0,
-          width: res.width,
-          height: res.height,
-          destWidth: res.width,
-          destHeight: res.height,
-          canvasId: 'shareImg',
-          success: function (res) {
-            console.log(res.tempFilePath);
-            that.setData({
-              shareUrl: res.tempFilePath,
-            })
-            wx.hideLoading({
-              success: (res) => {},
-            })
-          },
-          fail: function (err) {
-            console.log(err)
-            wx.hideLoading({
-              success: (res) => {},
-            })
-          }
+        wx.showLoading({
+            title: '生成中...',
         })
-      })
-    })
-  },
-  /**
-   * 保存到相册
-  */
-  save: function () {
-    var that = this
-    //生产环境时 记得这里要加入获取相册授权的代码
-    wx.saveImageToPhotosAlbum({
-      filePath: that.data.shareUrl,
-      success(res) {
-        wx.showModal({
-          content: '图片已保存到相册，去晒一下吧~',
-          showCancel: false,
-          confirmText: '好哒',
-          confirmColor: '#72B9C3',
-          success: function (res) {
-            if (res.confirm) {
-              console.log('用户点击确定');
-            }
-          }
-        })
-      }
-    })
-  },
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
 
-  },
+        const query = wx.createSelectorQuery()
+        query.select('#shareImg')
+            .fields({ node: true, size: true }).exec(async (res) => {
+                const canvas = res[0].node
+                const ctx = canvas.getContext('2d')
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
+                // 绘制底图
+                const bgImage = canvas.createImage()
+                bgImage.src = options.image
+                let bgImageContent = await new Promise((resolve, reject) => {
+                    bgImage.onload = () => {
+                        resolve(bgImage)
+                    }
+                    bgImage.onerror = (e) => {
+                        console.error(e)
+                        reject(null)
+                    }
+                })
+                canvas.width = bgImageContent.width
+                canvas.height = bgImageContent.height
+                ctx.drawImage(bgImageContent, 0, 0, bgImageContent.width, bgImageContent.height)
 
-  },
+                // 绘制小程序二维码分享图
+                const qrcodeImage = canvas.createImage()
+                qrcodeImage.src = '/images/qrcode.jpg'
+                let qrcodeImageContent = await new Promise((resolve, reject) => {
+                    qrcodeImage.onload = () => {
+                        resolve(qrcodeImage)
+                    }
+                    qrcodeImage.onerror = (e) => {
+                        console.error(e)
+                        reject(null)
+                    }
+                })
+                ctx.drawImage(qrcodeImageContent, 
+                    canvas.width - qrcodeImageContent.width, 
+                    canvas.height - qrcodeImageContent.height, 
+                    qrcodeImageContent.width, qrcodeImageContent.height)
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
+                ctx.font = '25px bold'          // 设置字体大小，20px
+                ctx.textAlign = 'center'        // 设置对齐方式，居中
+                ctx.fillStyle = '#fff'          // 设置字体填充颜色，白色
+                ctx.fillText('扫描下方二维码体验拍拍题吧', 200, 50)
 
-  },
+                ctx.font = '25px bold'          // 设置字体大小，20px
+                ctx.textAlign = 'center'        // 设置对齐方式，居中
+                ctx.fillStyle = '#000'          // 设置字体填充颜色，白色
+                ctx.fillText('扫描下方二维码体验拍拍题吧', 202, 52)
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
+                ctx.stroke()
 
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  },
-
+                wx.canvasToTempFilePath({
+                    canvas: canvas,
+                    success: function (res) {
+                        self.setData({
+                            shareUrl: res.tempFilePath,
+                        })
+                        wx.hideLoading({
+                            success: (res) => { },
+                        })
+                    },
+                    fail: function (err) {
+                        console.log(err)
+                        wx.hideLoading({
+                            success: (res) => { },
+                        })
+                    }
+                })
+            })
+    },
+    /**
+     * 保存到相册
+    */
+    save: function () {
+        common.saveToAlbum('shareImg')
+    },
 })
